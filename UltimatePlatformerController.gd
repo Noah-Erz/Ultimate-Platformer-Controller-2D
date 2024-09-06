@@ -415,7 +415,7 @@ func _physics_process(delta):
 		
 	#INFO Rolling
 	if canRoll and is_on_floor() and rollTap and crouching:
-		_rollingTime(0.75)
+		_rollingTime(rollLength * 0.25)
 		if wasPressingR and !(upHold):
 			velocity.y = 0
 			velocity.x = maxSpeedLock * rollLength
