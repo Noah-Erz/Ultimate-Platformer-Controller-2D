@@ -398,7 +398,7 @@ func _physics_process(delta):
 	if crouch:
 		if downHold and is_on_floor():
 			crouching = true
-		elif !downHold and ((runHold and runningModifier) or !runningModifier) and !rolling:
+		elif !downHold and !rolling:
 			crouching = false
 			
 	if !is_on_floor():
