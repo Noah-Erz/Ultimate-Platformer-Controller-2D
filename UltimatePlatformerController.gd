@@ -265,7 +265,7 @@ func _process(_delta):
 		anim.scale.x = animScaleLock.x * -1
 	
 	#run
-	if run and idle and !dashing and !crouching:
+	if run and idle and !dashing and !crouching and !walk:
 		if abs(velocity.x) > 0.1 and is_on_floor() and !is_on_wall():
 			anim.speed_scale = abs(velocity.x / 150)
 			anim.play("run")
@@ -408,7 +408,7 @@ func _physics_process(delta):
 		maxSpeed = maxSpeedLock / 2
 		col.scale.y = colliderScaleLockY / 2
 		col.position.y = colliderPosLockY + (8 * colliderScaleLockY)
-	else:
+	elif !runningModifier or (runningModifier and runHold):
 		maxSpeed = maxSpeedLock
 		col.scale.y = colliderScaleLockY
 		col.position.y = colliderPosLockY
