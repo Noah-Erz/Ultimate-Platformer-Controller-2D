@@ -282,7 +282,10 @@ func _process(_delta):
 		elif abs(velocity.x) < 0.1 and is_on_floor():
 			anim.speed_scale = 1
 			anim.play("idle")
-		
+	elif !run and idle and !dashing and !crouching:
+		anim.speed_scale = 1
+		anim.play("idle")
+	
 	#jump
 	if velocity.y < 0 and jump and !dashing:
 		anim.speed_scale = 1
