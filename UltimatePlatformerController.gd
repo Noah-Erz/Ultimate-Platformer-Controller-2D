@@ -91,6 +91,8 @@ class_name PlatformerController2D
 @export_range(0.05, 0.75) var groundPoundPause: float = 0.25
 ##If enabled, pressing up will end the ground pound early
 @export var upToCancel: bool = false
+##Height of the sprite in pixels
+@export var spriteHeight: int = 32
 
 @export_category("Animations (Check Box if has animation)")
 ##Animations must be named "run" all lowercase as the check box says
@@ -410,7 +412,7 @@ func _physics_process(delta):
 	if crouching:
 		maxSpeed = maxSpeedLock / 2
 		col.scale.y = colliderScaleLockY / 2
-		col.position.y = colliderPosLockY + (8 * colliderScaleLockY)
+		col.position.y = colliderPosLockY + (spriteHeight/4 * colliderScaleLockY)
 	elif !runningModifier or (runningModifier and runHold):
 		maxSpeed = maxSpeedLock
 		col.scale.y = colliderScaleLockY
