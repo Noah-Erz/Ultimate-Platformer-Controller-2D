@@ -412,7 +412,7 @@ func _physics_process(delta):
 	if crouching:
 		maxSpeed = maxSpeedLock / 2
 		col.scale.y = colliderScaleLockY / 2
-		col.position.y = colliderPosLockY + (spriteHeight/4 * colliderScaleLockY)
+		col.position.y = colliderPosLockY + (spriteHeight/4.0 * colliderScaleLockY)
 	elif !runningModifier or (runningModifier and runHold):
 		maxSpeed = maxSpeedLock
 		col.scale.y = colliderScaleLockY
