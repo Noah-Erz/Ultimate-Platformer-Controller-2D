@@ -301,23 +301,23 @@ func _process(_delta):
 			anim.speed_scale = 1
 			anim.play("slide")
 			
-		#dash
-		if dashing:
-			anim.speed_scale = 1
-			anim.play("dash")
+	#dash
+	if dashing:
+		anim.speed_scale = 1
+		anim.play("dash")
 			
-		#crouch
-		if crouching and !rolling:
-			if abs(velocity.x) > 10:
-				anim.speed_scale = 1
-				anim.play("crouch_walk")
-			else:
-				anim.speed_scale = 1
-				anim.play("crouch_idle")
-		
-		if rollTap and canRoll and roll:
+	#crouch
+	if crouching and !rolling:
+		if abs(velocity.x) > 10:
 			anim.speed_scale = 1
-			anim.play("roll")
+			anim.play("crouch_walk")
+		else:
+			anim.speed_scale = 1
+			anim.play("crouch_idle")
+		
+	if rollTap and canRoll and roll:
+		anim.speed_scale = 1
+		anim.play("roll")
 		
 		
 		
