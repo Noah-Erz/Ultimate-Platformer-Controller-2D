@@ -115,6 +115,8 @@ class_name PlatformerController2D
 @export var crouch_walk: bool
 ##Animations must be named "roll" all lowercase as the check box says
 @export var roll: bool
+##Animations must be named "dash" all lowercase as the check box says
+@export var dash: bool
 
 
 
@@ -307,7 +309,7 @@ func _process(_delta):
 			anim.play("slide")
 			
 	#dash
-	if dashing:
+	if dash and dashing:
 		anim.speed_scale = 1
 		anim.play("dash")
 			
