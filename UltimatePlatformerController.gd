@@ -299,12 +299,12 @@ func _process(_delta):
 		anim.speed_scale = 1
 		anim.play("falling")
 		
-	if latch and slide:
+	if latch:
 		#wall slide and latch
 		if latched and !wasLatched:
 			anim.speed_scale = 1
 			anim.play("latch")
-		if is_on_wall() and velocity.y > 0 and slide and anim.animation != "slide" and wallSliding != 1:
+		if slide and is_on_wall() and velocity.y > 0 and slide and anim.animation != "slide" and wallSliding != 1:
 			anim.speed_scale = 1
 			anim.play("slide")
 			
