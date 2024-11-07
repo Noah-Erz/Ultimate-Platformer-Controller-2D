@@ -68,6 +68,8 @@ class_name PlatformerController2D
 @export var dashCancel: bool = true
 ##How far the player will dash. One of the dashing toggles must be on for this to be used.
 @export_range(1.5, 4) var dashLength: float = 2.5
+##Enabling will disable the players collider while dashing
+@export var dashThroughWalls: bool = false
 @export_category("Corner Cutting/Jump Correct")
 ##If the player's head is blocked by a jump but only by a little, the player will be nudged in the right direction and their jump will execute as intended. NEEDS RAYCASTS TO BE ATTACHED TO THE PLAYER NODE. AND ASSIGNED TO MOUNTING RAYCAST. DISTANCE OF MOUNTING DETERMINED BY PLACEMENT OF RAYCAST.
 @export var cornerCutting: bool = false
@@ -309,10 +311,14 @@ func _process(_delta):
 			anim.play("slide")
 			
 	#dash
-	if dash and dashing:
-		anim.speed_scale = 1
-		anim.play("dash")
-			
+	if dashing:
+		if dash:
+			anim.speed_scale = 1
+			anim.play("dash")
+		if dashThroughWalls:
+			PlayerCollider.disabled = true
+	else:
+		PlayerCollider.disabled = false
 	#crouch
 	if crouching and !rolling:
 		if abs(velocity.x) > 10:
