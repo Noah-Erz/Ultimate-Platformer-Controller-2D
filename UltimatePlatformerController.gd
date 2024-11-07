@@ -71,7 +71,7 @@ class_name PlatformerController2D
 ##Enabling will disable the players collider while dashing
 @export var dashThroughWalls: bool = false
 ##Enabling will disable the players hitbox while dashing
-@export var imuneWhileDashing: bool = false
+@export var immuneWhileDashing: bool = false
 @export var PlayerHitbox: CollisionShape2D = null
 @export_category("Corner Cutting/Jump Correct")
 ##If the player's head is blocked by a jump but only by a little, the player will be nudged in the right direction and their jump will execute as intended. NEEDS RAYCASTS TO BE ATTACHED TO THE PLAYER NODE. AND ASSIGNED TO MOUNTING RAYCAST. DISTANCE OF MOUNTING DETERMINED BY PLACEMENT OF RAYCAST.
@@ -320,7 +320,7 @@ func _process(_delta):
 			anim.play("dash")
 		if dashThroughWalls:
 			PlayerCollider.disabled = true
-		if imuneWhileDashing:
+		if immuneWhileDashing:
 			PlayerHitbox.disabled = true
 	else:
 		PlayerCollider.disabled = false
