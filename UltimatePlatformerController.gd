@@ -629,7 +629,9 @@ func _inputPauseReset(time):
 
 func _decelerate(delta, vertical):
 	if !vertical:
-		if velocity.x > 0:
+		if (abs(velocity.x) > 0) and (abs(velocity.x) <= abs(deceleration * delta)):
+			velocity.x = 0
+		elif velocity.x > 0:
 			velocity.x += deceleration * delta
 		elif velocity.x < 0:
 			velocity.x -= deceleration * delta
