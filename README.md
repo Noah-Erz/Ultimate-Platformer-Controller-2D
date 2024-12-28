@@ -33,7 +33,10 @@ Descending Gravity Factor (float)
 Your player will move this amount faster when falling providing a less floaty jump curve.
 
 Short Hop AKA Variable Jump Height (bool)
-Enabling this toggle makes it so that when the player releases the jump key while still ascending, their vertical velocity will cut in half, providing variable jump height.
+Enabling this toggle makes it so that when the player releases the jump key while still ascending, their vertical velocity will cut in the short hop variable, providing variable jump height.
+
+Jump Variable (float)
+The amount velocity.y is cut in after releasing a short hop.
 
 Coyote Time (float)
 How much extra time (in seconds) your player will be given to jump after falling off an edge. This is set to 0.2 seconds by default.
