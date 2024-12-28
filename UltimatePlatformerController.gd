@@ -2,9 +2,9 @@ extends CharacterBody2D
 
 class_name PlatformerController2D
 
-@export var README: String = "IMPORTANT: MAKE SURE TO ASSIGN 'left' 'right' 'jump' 'dash' 'up' 'down' 'roll' 'latch' 'run' 'twirl' in the project settings input map. Usage tips. 1. Hover over each toggle and variable to read what it does and to make sure nothing bugs. 2. Animations are very primitive. To make full use of your custom art, you may want to slightly change the code for the animations"
+@export var README: String = "IMPORTANT: MAKE SURE TO ASSIGN 'left' 'right' 'jump' 'dash' 'up' 'down' 'roll' 'latch' 'twirl' 'run' in the project settings input map. Usage tips. 1. Hover over each toggle and variable to read what it does and to make sure nothing bugs. 2. Animations are very primitive. To make full use of your custom art, you may want to slightly change the code for the animations"
 #INFO READEME 
-#IMPORTANT: MAKE SURE TO ASSIGN 'left' 'right' 'jump' 'dash' 'up' 'down' 'roll' 'latch' 'run' 'twirl' in the project settings input map. THIS IS REQUIRED
+#IMPORTANT: MAKE SURE TO ASSIGN 'left' 'right' 'jump' 'dash' 'up' 'down' 'roll' 'latch' 'twirl' 'run'  in the project settings input map. THIS IS REQUIRED
 #Usage tips. 
 #1. Hover over each toggle and variable to read what it does and to make sure nothing bugs. 
 #2. Animations are very primitive. To make full use of your custom art, you may want to slightly change the code for the animations
@@ -38,8 +38,10 @@ class_name PlatformerController2D
 @export_range(0, 1000) var terminalVelocity: float = 500.0
 ##Your player will move this amount faster when falling providing a less floaty jump curve.
 @export_range(0.5, 3) var descendingGravityFactor: float = 1.3
-##Enabling this toggle makes it so that when the player releases the jump key while still ascending, their vertical velocity will cut in half, providing variable jump height.
+##Enabling this toggle makes it so that when the player releases the jump key while still ascending, their vertical velocity will cut by the height cut, providing variable jump height.
 @export var shortHopAkaVariableJumpHeight: bool = true
+##How much the jump height is cut by.
+@export_range(1, 10) var jumpVariable: float = 2
 ##How much extra time (in seconds) your player will be given to jump after falling off an edge. This is set to 0.2 seconds by default.
 @export_range(0, 0.5) var coyoteTime: float = 0.2
 ##The window of time (in seconds) that your player can press the jump button before hitting the ground and still have their input registered as a jump. This is set to 0.2 seconds by default.
@@ -464,7 +466,7 @@ func _physics_process(delta):
 				velocity.y = appliedTerminalVelocity
 		
 	if shortHopAkaVariableJumpHeight and jumpRelease and velocity.y < 0:
-		velocity.y = velocity.y / 2
+		velocity.y = velocity.y / jumpVariable
 	
 	if jumps == 1:
 		if !is_on_floor() and !is_on_wall():
@@ -480,7 +482,7 @@ func _physics_process(delta):
 				jumpWasPressed = true
 				_bufferJump()
 			elif jumpBuffering == 0 and coyoteTime == 0 and is_on_floor():
-				_jump()	
+				_jump()
 		elif jumpTap and is_on_wall() and !is_on_floor():
 			if wallJump and !latched:
 				_wallJump()
@@ -488,12 +490,13 @@ func _physics_process(delta):
 				_wallJump()
 		elif jumpTap and is_on_floor():
 			_jump()
-		
-		
 			
 		if is_on_floor():
 			jumpCount = jumps
-			coyoteActive = true
+			if coyoteTime > 0:
+				coyoteActive = true
+			else:
+				coyoteActive = false
 			if jumpWasPressed:
 				_jump()
 
@@ -517,6 +520,10 @@ func _physics_process(delta):
 		_dashingTime(dTime)
 		_pauseGravity(dTime)
 		velocity = dashMagnitude * input_direction
+		if (!rightHold and !leftHold and !downHold and !upHold) and wasMovingR:
+			velocity.x = dashMagnitude
+		elif (!rightHold and !leftHold and !downHold and !upHold) and !wasMovingR:
+			velocity.x = -dashMagnitude
 		dashCount += -1
 		movementInputMonitoring = Vector2(false, false)
 		_inputPauseReset(dTime)
@@ -630,7 +637,7 @@ func _inputPauseReset(time):
 func _decelerate(delta, vertical):
 	if !vertical:
 		if (abs(velocity.x) > 0) and (abs(velocity.x) <= abs(deceleration * delta)):
-			velocity.x = 0
+			velocity.x = 0 
 		elif velocity.x > 0:
 			velocity.x += deceleration * delta
 		elif velocity.x < 0:
@@ -648,6 +655,8 @@ func _dashingTime(time):
 	dashing = true
 	await get_tree().create_timer(time).timeout
 	dashing = false
+	if !is_on_floor():
+		velocity.y = -gravityScale * 10
 
 func _rollingTime(time):
 	rolling = true
