@@ -70,6 +70,11 @@ class_name PlatformerController2D
 @export var dashCancel: bool = true
 ##How far the player will dash. One of the dashing toggles must be on for this to be used.
 @export_range(1.5, 4) var dashLength: float = 2.5
+##Enabling will disable the players collider while dashing
+@export var dashThroughWalls: bool = false
+##Enabling will disable the players hitbox while dashing
+@export var immuneWhileDashing: bool = false
+@export var PlayerHitbox: CollisionShape2D = null
 @export_category("Corner Cutting/Jump Correct")
 ##If the player's head is blocked by a jump but only by a little, the player will be nudged in the right direction and their jump will execute as intended. NEEDS RAYCASTS TO BE ATTACHED TO THE PLAYER NODE. AND ASSIGNED TO MOUNTING RAYCAST. DISTANCE OF MOUNTING DETERMINED BY PLACEMENT OF RAYCAST.
 @export var cornerCutting: bool = false
@@ -93,6 +98,8 @@ class_name PlatformerController2D
 @export_range(0.05, 0.75) var groundPoundPause: float = 0.25
 ##If enabled, pressing up will end the ground pound early
 @export var upToCancel: bool = false
+##Height of the sprite in pixels
+@export var spriteHeight: int = 32
 
 @export_category("Animations (Check Box if has animation)")
 ##Animations must be named "run" all lowercase as the check box says
@@ -115,6 +122,8 @@ class_name PlatformerController2D
 @export var crouch_walk: bool
 ##Animations must be named "roll" all lowercase as the check box says
 @export var roll: bool
+##Animations must be named "dash" all lowercase as the check box says
+@export var dash: bool
 
 
 
@@ -284,7 +293,10 @@ func _process(_delta):
 		elif abs(velocity.x) < 0.1 and is_on_floor():
 			anim.speed_scale = 1
 			anim.play("idle")
-		
+	elif !run and idle and !dashing and !crouching:
+		anim.speed_scale = 1
+		anim.play("idle")
+	
 	#jump
 	if velocity.y < 0 and jump and !dashing:
 		anim.speed_scale = 1
@@ -294,32 +306,40 @@ func _process(_delta):
 		anim.speed_scale = 1
 		anim.play("falling")
 		
-	if latch and slide:
+	if latch:
 		#wall slide and latch
 		if latched and !wasLatched:
 			anim.speed_scale = 1
 			anim.play("latch")
-		if is_on_wall() and velocity.y > 0 and slide and anim.animation != "slide" and wallSliding != 1:
+		if slide and is_on_wall() and velocity.y > 0 and slide and anim.animation != "slide" and wallSliding != 1:
 			anim.speed_scale = 1
 			anim.play("slide")
 			
-		#dash
-		if dashing:
+	#dash
+	if dashing:
+		if dash:
 			anim.speed_scale = 1
 			anim.play("dash")
-			
-		#crouch
-		if crouching and !rolling:
-			if abs(velocity.x) > 10:
-				anim.speed_scale = 1
-				anim.play("crouch_walk")
-			else:
-				anim.speed_scale = 1
-				anim.play("crouch_idle")
-		
-		if rollTap and canRoll and roll:
+		if dashThroughWalls:
+			PlayerCollider.disabled = true
+		if immuneWhileDashing:
+			PlayerHitbox.disabled = true
+	else:
+		PlayerCollider.disabled = false
+		if PlayerHitbox: PlayerHitbox.disabled = false
+	
+	#crouch
+	if crouching and !rolling:
+		if abs(velocity.x) > 10:
 			anim.speed_scale = 1
-			anim.play("roll")
+			anim.play("crouch_walk")
+		else:
+			anim.speed_scale = 1
+			anim.play("crouch_idle")
+		
+	if rollTap and canRoll and roll:
+		anim.speed_scale = 1
+		anim.play("roll")
 		
 		
 		
@@ -409,7 +429,7 @@ func _physics_process(delta):
 	if crouching:
 		maxSpeed = maxSpeedLock / 2
 		col.scale.y = colliderScaleLockY / 2
-		col.position.y = colliderPosLockY + (8 * colliderScaleLockY)
+		col.position.y = colliderPosLockY + (spriteHeight/4.0 * colliderScaleLockY)
 	elif !runningModifier or (runningModifier and runHold):
 		maxSpeed = maxSpeedLock
 		col.scale.y = colliderScaleLockY
