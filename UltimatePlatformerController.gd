@@ -154,6 +154,7 @@ var dset = false
 var colliderScaleLockY
 var colliderPosLockY
 
+var isGrounded := false
 var latched
 var wasLatched
 var crouching
@@ -249,7 +250,7 @@ func _updateData():
 	elif dashType == 4:
 		eightWayDash = true
 	
-	
+
 
 func _process(_delta):
 	#INFO animations
@@ -347,6 +348,8 @@ func _physics_process(delta):
 	twirlTap = Input.is_action_just_pressed("twirl")
 	
 	
+	isGrounded = is_on_floor() or _check_grounded_on_opposing_walls()
+	
 	#INFO Left and Right Movement
 	
 	if rightHold and leftHold and movementInputMonitoring:
@@ -374,7 +377,7 @@ func _physics_process(delta):
 				_decelerate(delta, false)
 			else:
 				velocity.x = 0.1
-				
+					
 	if velocity.x > 0:
 		wasMovingR = true
 	elif velocity.x < 0:
@@ -398,12 +401,12 @@ func _physics_process(delta):
 			
 	#INFO Crouching
 	if crouch:
-		if downHold and is_on_floor():
+		if downHold and isGrounded:
 			crouching = true
 		elif !downHold and !rolling:
 			crouching = false
 			
-	if !is_on_floor():
+	if !isGrounded:
 		crouching = false
 			
 	if crouching:
@@ -416,7 +419,7 @@ func _physics_process(delta):
 		col.position.y = colliderPosLockY
 		
 	#INFO Rolling
-	if canRoll and is_on_floor() and rollTap and crouching:
+	if canRoll and isGrounded and rollTap and crouching:
 		_rollingTime(rollLength * 0.25)
 		if wasPressingR and !(upHold):
 			velocity.y = 0
@@ -469,11 +472,11 @@ func _physics_process(delta):
 		velocity.y = velocity.y / jumpVariable
 	
 	if jumps == 1:
-		if !is_on_floor() and !is_on_wall():
+		
+		if !isGrounded and !is_on_wall():
 			if coyoteTime > 0:
 				coyoteActive = true
 				_coyoteTime()
-				
 		if jumpTap and !is_on_wall():
 			if coyoteActive:
 				coyoteActive = false
@@ -481,17 +484,18 @@ func _physics_process(delta):
 			if jumpBuffering > 0:
 				jumpWasPressed = true
 				_bufferJump()
-			elif jumpBuffering == 0 and coyoteTime == 0 and is_on_floor():
+			elif jumpBuffering == 0 and coyoteTime == 0 and isGrounded:
 				_jump()
-		elif jumpTap and is_on_wall() and !is_on_floor():
+		elif jumpTap and is_on_wall() and !isGrounded:
 			if wallJump and !latched:
 				_wallJump()
 			elif wallJump and latched:
 				_wallJump()
-		elif jumpTap and is_on_floor():
+		elif jumpTap and isGrounded:
 			_jump()
+			isGrounded = false
 			
-		if is_on_floor():
+		if isGrounded:
 			jumpCount = jumps
 			if coyoteTime > 0:
 				coyoteActive = true
@@ -501,7 +505,7 @@ func _physics_process(delta):
 				_jump()
 
 	elif jumps > 1:
-		if is_on_floor():
+		if isGrounded:
 			jumpCount = jumps
 		if jumpTap and is_on_wall() and wallJump:
 			_wallJump()
@@ -512,7 +516,7 @@ func _physics_process(delta):
 			
 			
 	#INFO dashing
-	if is_on_floor():
+	if isGrounded:
 		dashCount = dashes
 	if eightWayDash and dashTap and dashCount > 0 and !rolling:
 		var input_direction = Input.get_vector("left", "right", "up", "down")
@@ -581,18 +585,37 @@ func _physics_process(delta):
 			position.x -= correctionAmount
 			
 	#INFO Ground Pound
-	if groundPound and downTap and !is_on_floor() and !is_on_wall():
+	if groundPound and downTap and !isGrounded and !is_on_wall():
 		groundPounding = true
 		gravityActive = false
 		velocity.y = 0
 		await get_tree().create_timer(groundPoundPause).timeout
 		_groundPound()
-	if is_on_floor() and groundPounding:
+	if isGrounded and groundPounding:
 		_endGroundPound()
 	move_and_slide()
 	
 	if upToCancel and upHold and groundPound:
 		_endGroundPound()
+
+func _check_grounded_on_opposing_walls() -> bool:
+	var collision_count := get_slide_collision_count()
+	if collision_count < 2:
+		return false
+	# check each pair of wall collisions to see if the walls face opposite directions
+	for i in collision_count:
+		var a: KinematicCollision2D = get_slide_collision(i)
+		for j in range(i + 1, collision_count):
+			var b: KinematicCollision2D = get_slide_collision(j)
+			if sign(a.get_normal().x) == -sign(b.get_normal().x):
+				# at least one of the walls must be an upward-facing slope to count
+				var a_angle = a.get_angle()
+				if a_angle > floor_max_angle and a_angle <= PI/2.0:
+					return true
+				var b_angle = b.get_angle()
+				if b_angle > floor_max_angle and b_angle <= PI/2.0:
+					return true
+	return false
 	
 func _bufferJump():
 	await get_tree().create_timer(jumpBuffering).timeout
@@ -609,6 +632,7 @@ func _jump():
 		velocity.y = -jumpMagnitude
 		jumpCount += -1
 		jumpWasPressed = false
+		
 		
 func _wallJump():
 	var horizontalWallKick = abs(jumpMagnitude * cos(wallKickAngle * (PI / 180)))
