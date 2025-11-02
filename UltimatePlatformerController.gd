@@ -3,7 +3,7 @@ extends CharacterBody2D
 class_name PlatformerController2D
 
 @export var README: String = "IMPORTANT: MAKE SURE TO ASSIGN 'left' 'right' 'jump' 'dash' 'up' 'down' 'roll' 'latch' 'twirl' 'run' in the project settings input map. Usage tips. 1. Hover over each toggle and variable to read what it does and to make sure nothing bugs. 2. Animations are very primitive. To make full use of your custom art, you may want to slightly change the code for the animations"
-#INFO READEME 
+#INFO README
 #IMPORTANT: MAKE SURE TO ASSIGN 'left' 'right' 'jump' 'dash' 'up' 'down' 'roll' 'latch' 'twirl' 'run'  in the project settings input map. THIS IS REQUIRED
 #Usage tips. 
 #1. Hover over each toggle and variable to read what it does and to make sure nothing bugs. 
@@ -12,6 +12,19 @@ class_name PlatformerController2D
 @export_category("Necesary Child Nodes")
 @export var PlayerSprite: AnimatedSprite2D
 @export var PlayerCollider: CollisionShape2D
+
+@export_category("Input Actions")
+@export_custom(PROPERTY_HINT_INPUT_NAME, "") var leftInputAction: StringName
+@export_custom(PROPERTY_HINT_INPUT_NAME, "") var rightInputAction: StringName
+@export_custom(PROPERTY_HINT_INPUT_NAME, "") var jumpInputAction: StringName
+@export_custom(PROPERTY_HINT_INPUT_NAME, "") var dashInputAction: StringName
+@export_custom(PROPERTY_HINT_INPUT_NAME, "") var upInputAction: StringName
+@export_custom(PROPERTY_HINT_INPUT_NAME, "") var downInputAction: StringName
+@export_custom(PROPERTY_HINT_INPUT_NAME, "") var rollInputAction: StringName
+@export_custom(PROPERTY_HINT_INPUT_NAME, "") var latchInputAction: StringName
+@export_custom(PROPERTY_HINT_INPUT_NAME, "") var twirlInputAction: StringName
+@export_custom(PROPERTY_HINT_INPUT_NAME, "") var runInputAction: StringName
+
 
 #INFO HORIZONTAL MOVEMENT 
 @export_category("L/R Movement")
@@ -329,22 +342,22 @@ func _physics_process(delta):
 		gdelta = delta
 		dset = true
 	#INFO Input Detectio. Define your inputs from the project settings here.
-	leftHold = Input.is_action_pressed("left")
-	rightHold = Input.is_action_pressed("right")
-	upHold = Input.is_action_pressed("up")
-	downHold = Input.is_action_pressed("down")
-	leftTap = Input.is_action_just_pressed("left")
-	rightTap = Input.is_action_just_pressed("right")
-	leftRelease = Input.is_action_just_released("left")
-	rightRelease = Input.is_action_just_released("right")
-	jumpTap = Input.is_action_just_pressed("jump")
-	jumpRelease = Input.is_action_just_released("jump")
-	runHold = Input.is_action_pressed("run")
-	latchHold = Input.is_action_pressed("latch")
-	dashTap = Input.is_action_just_pressed("dash")
-	rollTap = Input.is_action_just_pressed("roll")
-	downTap = Input.is_action_just_pressed("down")
-	twirlTap = Input.is_action_just_pressed("twirl")
+	leftHold = Input.is_action_pressed(leftInputAction)
+	rightHold = Input.is_action_pressed(rightInputAction)
+	upHold = Input.is_action_pressed(upInputAction)
+	downHold = Input.is_action_pressed(downInputAction)
+	leftTap = Input.is_action_just_pressed(leftInputAction)
+	rightTap = Input.is_action_just_pressed(rightInputAction)
+	leftRelease = Input.is_action_just_released(leftInputAction)
+	rightRelease = Input.is_action_just_released(rightInputAction)
+	jumpTap = Input.is_action_just_pressed(jumpInputAction)
+	jumpRelease = Input.is_action_just_released(jumpInputAction)
+	runHold = Input.is_action_pressed(runInputAction)
+	latchHold = Input.is_action_pressed(latchInputAction)
+	dashTap = Input.is_action_just_pressed(dashInputAction)
+	rollTap = Input.is_action_just_pressed(rollInputAction)
+	downTap = Input.is_action_just_pressed(downInputAction)
+	twirlTap = Input.is_action_just_pressed(twirlInputAction)
 	
 	
 	#INFO Left and Right Movement
@@ -515,7 +528,7 @@ func _physics_process(delta):
 	if is_on_floor():
 		dashCount = dashes
 	if eightWayDash and dashTap and dashCount > 0 and !rolling:
-		var input_direction = Input.get_vector("left", "right", "up", "down")
+		var input_direction = Input.get_vector(leftInputAction, rightInputAction, upInputAction, downInputAction)
 		var dTime = 0.0625 * dashLength
 		_dashingTime(dTime)
 		_pauseGravity(dTime)
